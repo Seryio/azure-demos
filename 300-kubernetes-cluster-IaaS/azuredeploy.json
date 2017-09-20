@@ -24,7 +24,7 @@
       "type": "string",
       "defaultValue": "17.04",
       "metadata": {
-        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+        "description": "The Ubuntu version for the VM."
       }
     }
   },
