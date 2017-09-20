@@ -14,7 +14,7 @@
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "defaultValue": "testvnets",
+      "defaultValue": "kubernetes-cluster",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
@@ -48,13 +48,6 @@
     "vnet1_subnetName": "vnet1_subnet1",
     "vnet1_subnetRef": "[concat(variables('vnet1_ID'),'/subnets/',variables('vnet1_subnetName'))]",
 
-    "vnet2_netPrefix": "10.1.0.0/16",
-    "vnet2_vnetName": "vnet2",
-    "vnet2_ID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet2_vnetName'))]",
-    "vnet2_subnetPrefix": "10.1.0.0/24",
-    "vnet2_subnetName": "vnet2_subnet1",
-    "vnet2_subnetRef": "[concat(variables('vnet2_ID'),'/subnets/',variables('vnet2_subnetName'))]",
-
     "vm1_nicName": "vm1Nic",
     "vm1_publicIPAddressName": "vm1PublicIP",
     "vm1_vmName": "ubuntuvm1",
@@ -67,6 +60,7 @@
 
   },
   "resources": [
+  
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
@@ -99,28 +93,6 @@
         ]
       }
     },
-    {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('vnet2_vnetName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('vnet2_netPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('vnet2_subnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('vnet2_subnetPrefix')]"
-            }
-          }
-        ]
-      }
-    },
-
     {
       "apiVersion": "2017-04-01",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -221,105 +193,6 @@
       }
     },
     
-    {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('vm2_publicIPAddressName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('vm2_dnsLabelPrefix')]"
-        }
-      }
-    },
-    {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('vm2_nicName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm2_publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet2_vnetName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig2",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm2_publicIPAddressName'))]"
-              },
-              "subnet": {
-                "id": "[variables('vnet2_subnetRef')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2017-03-30",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vm2_vmName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('vm2_nicName'))]"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
-        },
-        "osProfile": {
-          "computerName": "[variables('vm2_vmName')]",
-          "adminUsername": "[parameters('adminUserName')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": "true",
-            "ssh": {
-              "publicKeys": [
-                {
-                  "path": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
-                  "keyData": "[parameters('sshPublicKey')]"
-                }
-              ]
-            }
-          }
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[parameters('ubuntuOSVersion')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "diskSizeGB": "1023",
-              "lun": 0,
-              "createOption": "Empty"
-            }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('vm2_nicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "true",
-            "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
-          }
-        }
-      }
-    }
   ],
   "outputs": {
     "vm1_hostname": {
@@ -329,14 +202,6 @@
     "vm1_sshCommand": {
       "type": "string",
       "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn)]"
-    },
-    "vm2_hostname": {
-      "type": "string",
-      "value": "[reference(variables('vm2_publicIPAddressName')).dnsSettings.fqdn]"
-    },
-    "vm2_sshCommand": {
-      "type": "string",
-      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('vm2_publicIPAddressName')).dnsSettings.fqdn)]"
     }
   }
 }
