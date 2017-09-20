@@ -29,24 +29,24 @@
     }
   },
   "variables": {
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'salinuxvm')]",
+    "storageAccountName": "[concat('storageaccount', '.', parameters('dnsLabelPrefix'))]",
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "vmSize": "Standard_DS1_V2",
     "publicIPAddressType": "Dynamic",
 
-    "vnet1_netPrefix": "10.0.0.0/16",
-    "vnet1_vnetName": "vnet1",
-    "vnet1_ID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet1_vnetName'))]",
-    "vnet1_subnetPrefix": "10.0.0.0/24",
-    "vnet1_subnetName": "vnet1_subnet1",
-    "vnet1_subnetRef": "[concat(variables('vnet1_ID'),'/subnets/',variables('vnet1_subnetName'))]",
+    "vnet_netPrefix": "10.0.0.0/16",
+    "vnet_vnetName": "vnet1",
+    "vnet_ID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet_vnetName'))]",
+    "vnet_subnetPrefix": "10.0.0.0/24",
+    "vnet_subnetName": "vnet1_subnet1",
+    "vnet_subnetRef": "[concat(variables('vnet_ID'),'/subnets/',variables('vnet_subnetName'))]",
 
-    "vm1_nicName": "vm1Nic",
-    "vm1_publicIPAddressName": "vm1PublicIP",
-    "vm1_vmName": "ubuntuvm1",
-    "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'-',parameters('dnsLabelPrefix'))]",
+    "vm1_vmName": "master",
+    "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'.',parameters('dnsLabelPrefix'))]",
+    "vm1_nicName": "[concat('nic', '.',variables('vm1_dnsLabelPrefix') )]",
+    "vm1_publicIPAddressName": "[concat('publicip', '.', variables('vm1_dnsLabelPrefix'))]",
   },
   "resources": [
   
@@ -64,24 +64,25 @@
     {
       "apiVersion": "2017-04-01",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('vnet1_vnetName')]",
+      "name": "[variables('vnet_vnetName')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('vnet1_netPrefix')]"
+            "[variables('vnet_netPrefix')]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('vnet1_subnetName')]",
+            "name": "[variables('vnet_subnetName')]",
             "properties": {
-              "addressPrefix": "[variables('vnet1_subnetPrefix')]"
+              "addressPrefix": "[variables('vnet_subnetPrefix')]"
             }
           }
         ]
       }
     },
+
     {
       "apiVersion": "2017-04-01",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -101,7 +102,7 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm1_publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet1_vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet_vnetName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -113,7 +114,7 @@
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm1_publicIPAddressName'))]"
               },
               "subnet": {
-                "id": "[variables('vnet1_subnetRef')]"
+                "id": "[variables('vnet_subnetRef')]"
               }
             }
           }
@@ -184,10 +185,6 @@
     
   ],
   "outputs": {
-    "vm1_hostname": {
-      "type": "string",
-      "value": "[reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn]"
-    },
     "vm1_sshCommand": {
       "type": "string",
       "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn)]"
