@@ -180,11 +180,5 @@
       }
     },
     
-  ],
-  "outputs": {
-    "vm1_sshCommand": {
-      "type": "string",
-      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn)]"
-    }
-  }
+  ]
 }
