@@ -4,6 +4,7 @@
   "parameters": {
     "adminUsername": {
       "type": "string",
+      "defaultValue": "sergio4",
       "metadata": {
         "description": "User name for the Virtual Machine."
       }
@@ -52,12 +53,6 @@
     "vm1_publicIPAddressName": "vm1PublicIP",
     "vm1_vmName": "ubuntuvm1",
     "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'-',parameters('dnsLabelPrefix'))]",
-
-    "vm2_nicName": "vm2Nic",
-    "vm2_publicIPAddressName": "vm2PublicIP",
-    "vm2_vmName": "ubuntuvm2",
-    "vm2_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'-',parameters('dnsLabelPrefix'))]"
-
   },
   "resources": [
   
