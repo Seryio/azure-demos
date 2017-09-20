@@ -91,7 +91,7 @@
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[variables('vm1_vmName')]"
+          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
         }
       }
     },
