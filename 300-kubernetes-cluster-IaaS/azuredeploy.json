@@ -15,7 +15,7 @@
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "defaultValue": "k8s-cluster",
+      "defaultValue": "k8scluster",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
@@ -29,7 +29,7 @@
     }
   },
   "variables": {
-    "storageAccountName": "[concat('storacc', '-', parameters('dnsLabelPrefix'))]",
+    "storageAccountName": "[concat('storacc',  parameters('dnsLabelPrefix'))]",
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
