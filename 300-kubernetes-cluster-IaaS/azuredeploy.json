@@ -55,17 +55,17 @@
     "vm2_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
     "vm2_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
 
-    "vm3_vmName": "k8sworker1",
+    "vm3_vmName": "k8sworker2",
     "vm3_role": "worker",
-    "vm3_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'.',parameters('dnsLabelPrefix'))]",
-    "vm3_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
-    "vm3_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
+    "vm3_dnsLabelPrefix": "[concat(variables('vm3_vmName'),'.',parameters('dnsLabelPrefix'))]",
+    "vm3_nicName": "[concat('nic', '.',variables('vm3_dnsLabelPrefix') )]",
+    "vm3_publicIPAddressName": "[concat('publicip', '.', variables('vm3_dnsLabelPrefix'))]",
 
-    "vm4_vmName": "k8sworker1",
+    "vm4_vmName": "k8sworker3",
     "vm4_role": "worker",
-    "vm4_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'.',parameters('dnsLabelPrefix'))]",
-    "vm4_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
-    "vm4_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
+    "vm4_dnsLabelPrefix": "[concat(variables('vm4_vmName'),'.',parameters('dnsLabelPrefix'))]",
+    "vm4_nicName": "[concat('nic', '.',variables('vm4_dnsLabelPrefix') )]",
+    "vm4_publicIPAddressName": "[concat('publicip', '.', variables('vm4_dnsLabelPrefix'))]",
 
 
   },
