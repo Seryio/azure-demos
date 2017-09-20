@@ -43,15 +43,31 @@
     "vnet_subnetName": "vnet1_subnet1",
     "vnet_subnetRef": "[concat(variables('vnet_ID'),'/subnets/',variables('vnet_subnetName'))]",
 
-    "vm1_vmName": "k8smaster",
+    "vm1_vmName": "k8smaster1",
+    "vm1_role": "master",
     "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'.',parameters('dnsLabelPrefix'))]",
     "vm1_nicName": "[concat('nic', '.',variables('vm1_dnsLabelPrefix') )]",
     "vm1_publicIPAddressName": "[concat('publicip', '.', variables('vm1_dnsLabelPrefix'))]",
 
-    "vm2_vmName": "k8snode1",
+    "vm2_vmName": "k8sworker1",
+    "vm2_role": "worker",
     "vm2_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'.',parameters('dnsLabelPrefix'))]",
     "vm2_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
     "vm2_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
+
+    "vm3_vmName": "k8sworker1",
+    "vm3_role": "worker",
+    "vm3_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'.',parameters('dnsLabelPrefix'))]",
+    "vm3_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
+    "vm3_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
+
+    "vm4_vmName": "k8sworker1",
+    "vm4_role": "worker",
+    "vm4_dnsLabelPrefix": "[concat(variables('vm2_vmName'),'.',parameters('dnsLabelPrefix'))]",
+    "vm4_nicName": "[concat('nic', '.',variables('vm2_dnsLabelPrefix') )]",
+    "vm4_publicIPAddressName": "[concat('publicip', '.', variables('vm2_dnsLabelPrefix'))]",
+
+
   },
   "resources": [
   
@@ -128,6 +144,9 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vm1_vmName')]",
       "location": "[resourceGroup().location]",
+      "tags": {
+        "role": "master",
+      },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', variables('vm1_nicName'))]"
@@ -225,6 +244,9 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vm2_vmName')]",
       "location": "[resourceGroup().location]",
+      "tags": {
+        "role": "worker",
+      },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', variables('vm2_nicName'))]"
@@ -281,6 +303,212 @@
         }
       }
     }
+
+    
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('vm3_publicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('vm3_nicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm3_publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet_vnetName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig3",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm3_publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('vnet_subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vm2_vmName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "role": "worker",
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('vm3_nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vm3_vmName')]",
+          "adminUsername": "[parameters('adminUserName')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('sshPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('vm3_nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
+          }
+        }
+      }
+    }
+
+    
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('vm4_publicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('vm4_nicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm4_publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet_vnetName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig4",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm4_publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('vnet_subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vm4_vmName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "role": "worker",
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('vm4_nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vm4_vmName')]",
+          "adminUsername": "[parameters('adminUserName')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('sshPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('vm4_nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "true",
+            "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
+          }
+        }
+      }
+    }
+
+
+
+
 
 
 
