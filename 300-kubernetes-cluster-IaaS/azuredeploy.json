@@ -29,7 +29,7 @@
     }
   },
   "variables": {
-    "storageAccountName": "[concat('storAcc', '-', parameters('dnsLabelPrefix'))]",
+    "storageAccountName": "[concat('storacc', '-', parameters('dnsLabelPrefix'))]",
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
