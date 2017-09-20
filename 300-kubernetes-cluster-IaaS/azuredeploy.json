@@ -145,7 +145,7 @@
       "name": "[variables('vm1_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "master",
+        "role": "[variables('vm1_role')]",
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -245,7 +245,7 @@
       "name": "[variables('vm2_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "worker",
+        "role": "[variables('vm2_role')]",
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -302,7 +302,7 @@
           }
         }
       }
-    }
+    },
 
     
     {
@@ -343,10 +343,10 @@
     {
       "apiVersion": "2017-03-30",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vm2_vmName')]",
+      "name": "[variables('vm3_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "worker",
+        "role": "[variables('vm3_role')]",
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -403,7 +403,7 @@
           }
         }
       }
-    }
+    },
 
     
     {
@@ -447,7 +447,7 @@
       "name": "[variables('vm4_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "worker",
+        "role": "[variables('vm4_role')]",
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
