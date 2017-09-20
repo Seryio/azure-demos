@@ -22,14 +22,14 @@
     },
     "ubuntuOSVersion": {
       "type": "string",
-      "defaultValue": "17.04",
+      "defaultValue": "17.04", 
       "metadata": {
         "description": "The Ubuntu version for the VM."
       }
     }
   },
   "variables": {
-    "storageAccountName": "[concat('storageaccount', '-', parameters('dnsLabelPrefix'))]",
+    "storageAccountName": "[concat('storAcc', '-', parameters('dnsLabelPrefix'))]",
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
