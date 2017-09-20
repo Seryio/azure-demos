@@ -62,7 +62,7 @@
       "properties": {}
     },
     {
-      "apiVersion": "2017-04-01",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('vnet_vnetName')]",
       "location": "[resourceGroup().location]",
@@ -84,19 +84,16 @@
     },
 
     {
-      "apiVersion": "2017-04-01",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('vm1_publicIPAddressName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('vm1_vmName')]"
-        }
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
       }
     },
     {
-      "apiVersion": "2017-04-01",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('vm1_nicName')]",
       "location": "[resourceGroup().location]",
@@ -122,7 +119,7 @@
       }
     },
     {
-      "apiVersion": "2017-03-30",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vm1_vmName')]",
       "location": "[resourceGroup().location]",
