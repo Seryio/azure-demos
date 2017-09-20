@@ -43,7 +43,7 @@
     "vnet_subnetName": "vnet1_subnet1",
     "vnet_subnetRef": "[concat(variables('vnet_ID'),'/subnets/',variables('vnet_subnetName'))]",
 
-    "vm1_vmName": "master",
+    "vm1_vmName": "k8smaster",
     "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'.',parameters('dnsLabelPrefix'))]",
     "vm1_nicName": "[concat('nic', '.',variables('vm1_dnsLabelPrefix') )]",
     "vm1_publicIPAddressName": "[concat('publicip', '.', variables('vm1_dnsLabelPrefix'))]",
