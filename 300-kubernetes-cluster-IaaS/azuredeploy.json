@@ -68,10 +68,9 @@
     "vm4_publicIPAddressName": "[concat('publicip', '.', variables('vm4_dnsLabelPrefix'))]",
 
     "vm5_vmName": "k8smaster2",
-    "vm5_role": "master",
+    "vm5_role": "mastermaster",
     "vm5_dnsLabelPrefix": "[concat(variables('vm5_vmName'),'.',parameters('dnsLabelPrefix'))]",
-    "vm5_nicName": "[concat('nic', '.',variables('vm5_dnsLabelPrefix') )]",
-    "vm5_publicIPAddressName": "[concat('publicip', '.', variables('vm5_dnsLabelPrefix'))]",
+    "vm5_nicName": "[concat('nic', '.',variables('vm5_dnsLabelPrefix') )]"
 
   },
   "resources": [
@@ -150,7 +149,7 @@
       "name": "[variables('vm1_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "[variables('vm1_role')]",
+        "role": "[variables('vm1_role')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -252,7 +251,7 @@
       "name": "[variables('vm2_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "[variables('vm2_role')]",
+        "role": "[variables('vm2_role')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -353,7 +352,7 @@
       "name": "[variables('vm3_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "[variables('vm3_role')]",
+        "role": "[variables('vm3_role')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -454,7 +453,7 @@
       "name": "[variables('vm4_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "[variables('vm4_role')]",
+        "role": "[variables('vm4_role')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -514,33 +513,21 @@
     },
 
     
-    {
-      "apiVersion": "2017-06-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('vm5_publicIPAddressName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
-      }
-    },
+
     {
       "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('vm5_nicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm5_publicIPAddressName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet_vnetName'))]"
       ],
       "properties": {
         "ipConfigurations": [
           {
-            "name": "ipconfig1",
+            "name": "ipconfig5",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm5_publicIPAddressName'))]"
-              },
               "subnet": {
                 "id": "[variables('vnet_subnetRef')]"
               }
@@ -555,7 +542,7 @@
       "name": "[variables('vm5_vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "role": "[variables('vm5_role')]",
+        "role": "[variables('vm5_role')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
