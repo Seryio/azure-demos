@@ -203,27 +203,7 @@
         }
       }
     },
-    {
-      "name": "microsoft.network-watcher-linux-20170921100748",
-      "apiVersion": "2015-01-01",
-      "type": "Microsoft.Resources/deployments",
-      "properties": {
-          "mode": "incremental",
-          "templateLink": {
-              "uri": "https://gallery.azure.com/artifact/20161101/microsoft.network-watcher-linux-arm.1.4.14/Artifacts/MainTemplate.json"
-          },
-          "parameters": {
-              "vmName": {
-                  "value": "[variables('vm1_vmName')]"
-              },
-              "location": {
-                  "value": "westeurope"
-              }
-          }
-      }
-  },
-
-
+    
     {
       "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -524,9 +504,6 @@
           }
         }
       }
-    
-    
-    
     }
   ]
 }
