@@ -70,8 +70,8 @@
     "vm5_vmName": "k8smaster2",
     "vm5_role": "master",
     "vm5_dnsLabelPrefix": "[concat(variables('vm5_vmName'),'.',parameters('dnsLabelPrefix'))]",
-    "vm5_nicName": "[concat('nic', '.',variables('vm5_dnsLabelPrefix') )]"
-
+    "vm5_nicName": "[concat('nic', '.',variables('vm5_dnsLabelPrefix') )]",
+    "vm5_publicIPAddressName": "[concat('publicip', '.', variables('vm5_dnsLabelPrefix'))]"
   },
   "resources": [
   
@@ -113,6 +113,9 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('vm1_publicIPAddressName')]",
       "location": "[resourceGroup().location]",
+      "tags": {
+        "role": "[variables('vm1_role')]"
+      },
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
       }
@@ -516,18 +519,31 @@
 
     {
       "apiVersion": "2017-06-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('vm5_publicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('vm5_nicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm5_publicIPAddressName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet_vnetName'))]"
       ],
       "properties": {
         "ipConfigurations": [
           {
-            "name": "ipconfig5",
+            "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm5_publicIPAddressName'))]"
+              },
               "subnet": {
                 "id": "[variables('vnet_subnetRef')]"
               }
