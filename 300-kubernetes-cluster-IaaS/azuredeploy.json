@@ -68,7 +68,7 @@
     "vm4_publicIPAddressName": "[concat('publicip', '.', variables('vm4_dnsLabelPrefix'))]",
 
     "vm5_vmName": "k8smaster2",
-    "vm5_role": "mastermaster",
+    "vm5_role": "master",
     "vm5_dnsLabelPrefix": "[concat(variables('vm5_vmName'),'.',parameters('dnsLabelPrefix'))]",
     "vm5_nicName": "[concat('nic', '.',variables('vm5_dnsLabelPrefix') )]"
 
