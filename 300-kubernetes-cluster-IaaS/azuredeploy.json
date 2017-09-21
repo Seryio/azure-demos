@@ -203,7 +203,39 @@
         }
       }
     },
-    
+    {
+      "name": "microsoft.custom-script-linux-20170921100227",
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+          "mode": "incremental",
+          "templateLink": {
+              "uri": "https://gallery.azure.com/artifact/20161101/microsoft.custom-script-linux-arm.2.0.50/Artifacts/MainTemplate.json"
+          },
+          "parameters": {
+              "vmName": {
+                  "value":  "[variables('vm1_vmName')]"
+              },
+              "location": {
+                  "value": "westeurope"
+              },
+              "fileUris": {
+                  "value": [
+                    "https://auxscripts.blob.core.windows.net/scripts/sudoers.sh"    
+                  ]
+              },
+              "commandToExecute": {
+                  "value": "sh sudoers.sh"
+              }
+          }
+      },
+      "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', variables('vm1_vmName'))]"
+      ]
+  },
+
+
+
     {
       "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/publicIPAddresses",
