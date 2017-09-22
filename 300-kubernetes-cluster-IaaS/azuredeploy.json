@@ -22,7 +22,7 @@
     },
     "ubuntuOSVersion": {
       "type": "string",
-      "defaultValue": "16.04", 
+      "defaultValue": "16.04-LTS", 
       "metadata": {
         "description": "The Ubuntu version for the VM."
       }
