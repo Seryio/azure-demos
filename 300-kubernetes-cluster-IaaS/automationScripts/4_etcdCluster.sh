@@ -3,23 +3,24 @@
 source ./config.sh
 
 
-echo "-- Installing etcd" 
-cat > etcd-installer.sh <<EOF
+echo "-- Creating etcd installer" 
+cat > $DATA_FOLDER"etcd-installer.sh" <<EOF
 	wget -q --https-only --timestamping https://github.com/coreos/etcd/releases/download/v3.2.7/etcd-v3.2.7-linux-amd64.tar.gz 
-	tar -xf ~/etcd-v3.2.6-linux-amd64.tar.gz
-	sudo mv ~/etcd-v3.2.6-linux-amd64/etcd* /usr/local/bin/
+	tar -xf ~/etcd-v3.2.7-linux-amd64.tar.gz
+	sudo mv ~/etcd-v3.2.7-linux-amd64/etcd* /usr/local/bin/
 	sudo mkdir -p /etc/etcd /var/lib/etcd
 	sudo cp ~/ca.pem ~/kubernetes-key.pem ~/kubernetes.pem /etc/etcd/
 EOF
 
-#Copy installer file to each master
+echo "-- Installing etcd in each master" 
 #Then each etcd.service file is unique per cluster member, but we need a flag --initial-cluster with all IPs of cluster members
 for MASTER_EXTERNAL_IP in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f4); do
-	scp -o StrictHostKeyChecking=no etcd-installer.sh $MASTER_EXTERNAL_IP:~/
+	scp -o StrictHostKeyChecking=no $DATA_FOLDER"etcd-installer.sh" $MASTER_EXTERNAL_IP:~/
 	ssh -o StrictHostKeyChecking=no $MASTER_EXTERNAL_IP "sudo sh etcd-installer.sh"
 done
 
 #ETCD cluster connection string in etc service flag --initial-cluster
+echo "-- Creating etcd linux service file - reading cluster addressing" 
 while read MASTER_DATA; do	
 	MASTER_NAME=$(echo $MASTER_DATA        |  cut -d" " -f2)
 	MASTER_INTERNAL_IP=$(echo $MASTER_DATA |  cut -d" " -f3)
@@ -29,12 +30,11 @@ while read MASTER_DATA; do
 done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE )"
 CLUSTER_CONNECTION_STRING=$(echo $CLUSTER_CONNECTION_STRING | sed 's/,$//')
 
-echo "-- Configuring etcd files"
-
+echo "-- Creating etcd linux service file - populating data" 
 while read MASTER_DATA; do	
 	MASTER_NAME=$(echo $MASTER_DATA        |  cut -d" " -f2)
 	MASTER_INTERNAL_IP=$(echo $MASTER_DATA |  cut -d" " -f3)
-	cat > $MASTER_NAME-etcd.service <<EOF
+	cat > $DATA_FOLDER$MASTER_NAME"-etcd.service" <<EOF
 [Unit]
 Description=etcd
 Documentation=https://github.com/coreos
@@ -67,7 +67,7 @@ EOF
 done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE )"
 
 echo "-- Demonaizing etcd"
-cat > etcd-starter.sh <<EOF
+cat > $DATA_FOLDER"etcd-starter.sh" <<EOF
 	sudo mv ~/etcd.service /etc/systemd/system/
 	sudo systemctl daemon-reload
 	sudo systemctl enable etcd
@@ -77,7 +77,7 @@ EOF
 for MASTER_NAME in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f2); do
 	MASTER_EXTERNAL_IP=$(grep $MASTER_NAME $INVENTORY_FILE |  cut -d" " -f4)
 	
-	scp -o StrictHostKeyChecking=no etcd-starter.sh $MASTER_EXTERNAL_IP:~/
-	scp -o StrictHostKeyChecking=no $MASTER_NAME-etcd.service $MASTER_EXTERNAL_IP:~/etcd.service
+	scp -o StrictHostKeyChecking=no $DATA_FOLDER"etcd-starter.sh" $MASTER_EXTERNAL_IP:~/
+	scp -o StrictHostKeyChecking=no $DATA_FOLDER$MASTER_NAME"-etcd.service" $MASTER_EXTERNAL_IP:~/etcd.service
 	ssh -o StrictHostKeyChecking=no $MASTER_EXTERNAL_IP "sudo sh etcd-starter.sh"
 done 
