@@ -18,7 +18,7 @@ while read MASTER_DATA; do
 	MASTER_EXTERNAL_IP=$(echo $MASTER_DATA |  cut -d" " -f4)
 	
 #API SERVER FILE
-cat > $MASTER_NAME-kube-apiserver.service <<EOF
+cat > $DATA_FOLDER$MASTER_NAME"-kube-apiserver.service" <<EOF
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
@@ -64,7 +64,7 @@ WantedBy=multi-user.target
 EOF
 
 #CONTROLLER MANAGER FILE
-cat > $MASTER_NAME-kube-controller-manager.service <<EOF
+cat > $DATA_FOLDER$MASTER_NAME"-kube-controller-manager.service" <<EOF
 [Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
@@ -89,7 +89,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-cat > $MASTER_NAME-kube-scheduler.service <<EOF
+cat > $DATA_FOLDER$MASTER_NAME"-kube-scheduler.service" <<EOF
 [Unit]
 Description=Kubernetes Scheduler
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
@@ -110,7 +110,7 @@ done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE)"
 
 
 echo "-- Prepare installation script" 
-cat > k8s-control-installer.sh <<EOF
+cat > $DATA_FOLDER"k8s-control-installer.sh" <<EOF
 wget -q --https-only --timestamping \
   "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kube-apiserver" \
   "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kube-controller-manager" \
@@ -134,11 +134,10 @@ EOF
 echo "-- Loading binaries and installing" 
 for MASTER_NAME in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f2); do
 	MASTER_EXTERNAL_IP=$(grep $MASTER_NAME $INVENTORY_FILE |  cut -d" " -f4)
-	scp -o StrictHostKeyChecking=no k8s-control-installer.sh $MASTER_EXTERNAL_IP:~/
-  scp -o StrictHostKeyChecking=no $MASTER_NAME-kube-apiserver.service          $MASTER_EXTERNAL_IP:~/kube-apiserver.service
-  scp -o StrictHostKeyChecking=no $MASTER_NAME-kube-controller-manager.service $MASTER_EXTERNAL_IP:~/kube-controller-manager.service
-  scp -o StrictHostKeyChecking=no $MASTER_NAME-kube-scheduler.service          $MASTER_EXTERNAL_IP:~/kube-scheduler.service
-
+	scp -o StrictHostKeyChecking=no $DATA_FOLDER"k8s-control-installer.sh" $MASTER_EXTERNAL_IP:~/
+  scp -o StrictHostKeyChecking=no $DATA_FOLDER$MASTER_NAME"-kube-apiserver.service"          $MASTER_EXTERNAL_IP:~/kube-apiserver.service
+  scp -o StrictHostKeyChecking=no $DATA_FOLDER$MASTER_NAME"-kube-controller-manager.service" $MASTER_EXTERNAL_IP:~/kube-controller-manager.service
+  scp -o StrictHostKeyChecking=no $DATA_FOLDER$MASTER_NAME"-kube-scheduler.service"          $MASTER_EXTERNAL_IP:~/kube-scheduler.service
 
 	ssh -o StrictHostKeyChecking=no $MASTER_EXTERNAL_IP "sudo sh k8s-control-installer.sh"
 	
