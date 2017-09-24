@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./config.sh
+
 echo "" > $INVENTORY_FILE
 
 echo "-- LIST WORKERS"
