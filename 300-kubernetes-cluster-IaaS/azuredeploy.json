@@ -31,7 +31,7 @@
   "variables": {
     "storageAccountName": "[concat('storacc',  parameters('dnsLabelPrefix'))]",
     "storageAccountType": "Standard_LRS",
-    "imagePublisher": "Canonical",
+    "imagePublisher": "Canonical", 
     "imageOffer": "UbuntuServer",
     "vmSize": "Standard_D2s_v3",
     "publicIPAddressType": "Dynamic",
