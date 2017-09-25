@@ -2,7 +2,7 @@
 
 source ./config.sh
 
-rm *pem *csr *json *yaml *kubeconfig 2> /dev/null
+find $DATA_FOLDER -type f -exec rm rm {}\;
 
 echo "-- CA config"
 #Create the CA configuration file:
@@ -26,7 +26,7 @@ echo "-- CA CSR"
 #Create the CA certificate signing request:
 cat > $DATA_FOLDER"ca-csr.json" <<EOF
 {
-  "CN": "Kubernetes",
+  "CN": "kubernetes Root CA",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -35,7 +35,7 @@ cat > $DATA_FOLDER"ca-csr.json" <<EOF
     {
       "C": "ES",
       "L": "MADRID",
-      "O": "Kubernetes",
+      "O": "kubernetes",
       "OU": "CA",
       "ST": "MADRID"
     }
@@ -61,7 +61,7 @@ cat > $DATA_FOLDER"admin-csr.json" <<EOF
       "C": "ES",
       "L": "Madrid",
       "O": "system:masters",
-      "OU": "Kubernetes The Hard Way",
+      "OU": "kubernetes The Hard Way",
       "ST": "Madrid"
     }
   ]
@@ -71,14 +71,14 @@ EOF
 echo "-- Admin priv/pub keys and cert"
 #Generate the admin client certificate and private key:
 cfssl gencert \
-  -ca=$DATA_FOLDER"ca.pem" \
-  -ca-key=$DATA_FOLDER"ca-key.pem" \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
   -config=$DATA_FOLDER"ca-config.json" \
   -profile=kubernetes \
   $DATA_FOLDER"admin-csr.json" 2> /dev/null | cfssljson -bare admin
 
 echo "-- Workers priv/pub keys and cert"  
-#Generate a certificate and private key for each Kubernetes worker node:
+#Generate a certificate and private key for each kubernetes worker node:
 while read WORKER_DATA; do	
 	WORKER_NAME=$(echo $WORKER_DATA        |  cut -d" " -f2)
 	WORKER_INTERNAL_IP=$(echo $WORKER_DATA |  cut -d" " -f3)
@@ -96,7 +96,7 @@ while read WORKER_DATA; do
 		  "C": "ES",
 		  "L": "Madrid",
 		  "O": "system:nodes",
-		  "OU": "Kubernetes The Hard Way",
+		  "OU": "kubernetes The Hard Way",
 		  "ST": "Madrid"
 		}
 	  ]
@@ -104,8 +104,8 @@ while read WORKER_DATA; do
 EOF
 
 	cfssl gencert \
-	  -ca=$DATA_FOLDER"ca.pem" \
-	  -ca-key=$DATA_FOLDER"ca-key.pem" \
+	  -ca=ca.pem \
+	  -ca-key=ca-key.pem \
 	  -config=$DATA_FOLDER"ca-config.json" \
 	  -hostname=${WORKER_NAME},${WORKER_EXTERNAL_IP},${WORKER_INTERNAL_IP} \
 	  -profile=kubernetes \
@@ -127,7 +127,7 @@ cat > $DATA_FOLDER"kube-proxy-csr.json" <<EOF
       "C": "ES",
       "L": "Madrid",
       "O": "system:node-proxier",
-      "OU": "Kubernetes The Hard Way",
+      "OU": "kubernetes The Hard Way",
       "ST": "Madrid"
     }
   ]
@@ -135,8 +135,8 @@ cat > $DATA_FOLDER"kube-proxy-csr.json" <<EOF
 EOF
 
 cfssl gencert \
-  -ca=$DATA_FOLDER"ca.pem" \
-  -ca-key=$DATA_FOLDER"ca-key.pem" \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
   -config=$DATA_FOLDER"ca-config.json" \
   -profile=kubernetes \
   $DATA_FOLDER"kube-proxy-csr.json" 2> /dev/null | cfssljson -bare kube-proxy
@@ -154,8 +154,8 @@ cat > $DATA_FOLDER"kubernetes-csr.json" <<EOF
     {
       "C": "ES",
       "L": "Madrid",
-      "O": "Kubernetes",
-      "OU": "Kubernetes The Hard Way",
+      "O": "kubernetes",
+      "OU": "kubernetes The Hard Way",
       "ST": "Madrid"
     }
   ]
@@ -170,13 +170,12 @@ PRIMARY_MASTER_EXTERNAL_IP=$(grep PRIMARY_MASTER $INVENTORY_FILE | cut -d" " -f4
 VM_IP_LIST="$VM_IP_LIST$PRIMARY_MASTER_EXTERNAL_IP"
 
 cfssl gencert \
-  -ca=$DATA_FOLDER"ca.pem" \
-  -ca-key=$DATA_FOLDER"ca-key.pem" \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
   -config=$DATA_FOLDER"ca-config.json" \
   -hostname=${VM_IP_LIST},127.0.0.1,kubernetes.default \
   -profile=kubernetes \
   $DATA_FOLDER"kubernetes-csr.json" 2> /dev/null | cfssljson -bare kubernetes
-
 
 mv *pem *csr $DATA_FOLDER
 
