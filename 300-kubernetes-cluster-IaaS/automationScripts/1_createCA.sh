@@ -2,7 +2,7 @@
 
 source ./config.sh
 
-find $DATA_FOLDER -type f -exec rm rm {}\;
+find $DATA_FOLDER -type f -exec rm {} \;
 
 echo "-- CA config"
 #Create the CA configuration file:
