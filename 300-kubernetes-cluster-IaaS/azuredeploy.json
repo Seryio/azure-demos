@@ -15,7 +15,7 @@
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "defaultValue": "k8scluster",
+      "defaultValue": "k8scluster2",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
