@@ -39,7 +39,7 @@
     "vnet_netPrefix": "10.99.0.0/16",
     "vnet_vnetName": "vnet1",
     "vnet_ID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet_vnetName'))]",
-    "vnet_subnetPrefix": "10.0.0.0/24",
+    "vnet_subnetPrefix": "10.99.0.0/24",
     "vnet_subnetName": "vnet1_subnet1",
     "vnet_subnetRef": "[concat(variables('vnet_ID'),'/subnets/',variables('vnet_subnetName'))]",
 
