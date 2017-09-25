@@ -25,7 +25,7 @@ while read MASTER_DATA; do
 	MASTER_NAME=$(echo $MASTER_DATA        |  cut -d" " -f2)
 	MASTER_INTERNAL_IP=$(echo $MASTER_DATA |  cut -d" " -f3)
 
-	CLUSTER_CONNECTION_STRING="$CLUSTER_CONNECTION_STRING$MASTER_NAME=https://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
+	CLUSTER_CONNECTION_STRING="$CLUSTER_CONNECTION_STRING$MASTER_NAME=http://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
 	
 done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE )"
 CLUSTER_CONNECTION_STRING=$(echo $CLUSTER_CONNECTION_STRING | sed 's/,$//')
@@ -42,18 +42,10 @@ Documentation=https://github.com/coreos
 [Service]
 ExecStart=/usr/local/bin/etcd \\
   --name ${MASTER_NAME} \\
-  --cert-file=/etc/etcd/kubernetes.pem \\
-  --key-file=/etc/etcd/kubernetes-key.pem \\
-  --peer-cert-file=/etc/etcd/kubernetes.pem \\
-  --peer-key-file=/etc/etcd/kubernetes-key.pem \\
-  --trusted-ca-file=/etc/etcd/ca.pem \\
-  --peer-trusted-ca-file=/etc/etcd/ca.pem \\
-  --peer-client-cert-auth \\
-  --client-cert-auth \\
-  --initial-advertise-peer-urls https://${MASTER_INTERNAL_IP}:2380 \\
-  --listen-peer-urls https://${MASTER_INTERNAL_IP}:2380 \\
-  --listen-client-urls https://${MASTER_INTERNAL_IP}:2379,http://127.0.0.1:2379 \\
-  --advertise-client-urls https://${MASTER_INTERNAL_IP}:2379 \\
+  --initial-advertise-peer-urls http://${MASTER_INTERNAL_IP}:2380 \\
+  --listen-peer-urls http://${MASTER_INTERNAL_IP}:2380 \\
+  --listen-client-urls http://${MASTER_INTERNAL_IP}:2379,http://127.0.0.1:2379 \\
+  --advertise-client-urls http://${MASTER_INTERNAL_IP}:2379 \\
   --initial-cluster-token etcd-cluster-0 \\
   --initial-cluster ${CLUSTER_CONNECTION_STRING} \\
   --initial-cluster-state new \\

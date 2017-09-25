@@ -179,7 +179,7 @@ cfssl gencert \
 
 
 mv *pem *csr $DATA_FOLDER
-set -x
+
 echo "-- Copying files to destination"
 while read WORKER_DATA; do	
 	WORKER_NAME=$(echo $WORKER_DATA        |  cut -d" " -f2)
