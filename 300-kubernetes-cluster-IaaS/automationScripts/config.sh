@@ -5,4 +5,4 @@ DATA_FOLDER="data/"
 CONFIG_FOLDER="etc/"
 INVENTORY_FILE=$CONFIG_FOLDER"inventory.txt"
 
-echo "-- Config loaded"
+echo "-- CONFIG LOADED"
