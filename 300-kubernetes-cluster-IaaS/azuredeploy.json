@@ -33,7 +33,7 @@
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "vmSize": "Standard_D1s_v3",
+    "vmSize": "Standard_D2s_v3",
     "publicIPAddressType": "Dynamic",
 
     "vnet_netPrefix": "10.0.0.0/16",
