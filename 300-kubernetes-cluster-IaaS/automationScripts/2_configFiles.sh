@@ -5,6 +5,8 @@ source ./config.sh
 echo "-- Generating workers config files"  
 PRIMARY_MASTER_EXTERNAL_IP=$(grep PRIMARY_MASTER $INVENTORY_FILE | cut -d" " -f4)
 
+set -x
+
 while read WORKER_NAME; do	
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=$DATA_FOLDER"ca.pem" \
