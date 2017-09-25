@@ -50,7 +50,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --kubelet-https=true \\
   --runtime-config=rbac.authorization.k8s.io/v1alpha1 \\
   --service-account-key-file=/var/lib/kubernetes/ca-key.pem \\
-  --service-cluster-ip-range=10.32.0.0/24 \\
+  --service-cluster-ip-range=10.0.0.0/24 \\
   --service-node-port-range=30000-32767 \\
   --tls-ca-file=/var/lib/kubernetes/ca.pem \\
   --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \\
@@ -112,10 +112,10 @@ done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE)"
 echo "-- Prepare installation script" 
 cat > $DATA_FOLDER"k8s-control-installer.sh" <<EOF
 wget -q --https-only --timestamping \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kube-apiserver" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kube-controller-manager" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kube-scheduler" \
-  "https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kubectl"
+  "https://storage.googleapis.com/kubernetes-release/release/v1.7.6/bin/linux/amd64/kube-apiserver" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.7.6/bin/linux/amd64/kube-controller-manager" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.7.6/bin/linux/amd64/kube-scheduler" \
+  "https://storage.googleapis.com/kubernetes-release/release/v1.7.6/bin/linux/amd64/kubectl"
 chmod +x kube-apiserver kube-controller-manager kube-scheduler kubectl
 mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
   
