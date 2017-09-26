@@ -26,7 +26,7 @@ echo "-- CA CSR"
 #Create the CA certificate signing request:
 cat > $DATA_FOLDER"ca-csr.json" <<EOF
 {
-  "CN": "kubernetes Root CA",
+  "CN": "Kubernetes",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -35,7 +35,7 @@ cat > $DATA_FOLDER"ca-csr.json" <<EOF
     {
       "C": "ES",
       "L": "MADRID",
-      "O": "kubernetes",
+      "O": "Kubernetes",
       "OU": "CA",
       "ST": "MADRID"
     }
@@ -187,7 +187,11 @@ while read WORKER_DATA; do
 	scp -o StrictHostKeyChecking=no $DATA_FOLDER"ca.pem" $DATA_FOLDER${WORKER_NAME}-key.pem $DATA_FOLDER${WORKER_NAME}.pem $WORKER_EXTERNAL_IP:~/
 done <<< "$(cat $INVENTORY_FILE | grep WORKER_NODE)"
 
-while read MASTER_EXTERNAL_IP; do	
+for MASTER_NAME in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f2); do
+	MASTER_EXTERNAL_IP=$(grep $MASTER_NAME $INVENTORY_FILE |  cut -d" " -f4)
+
 	scp -o StrictHostKeyChecking=no $DATA_FOLDER"ca.pem" $DATA_FOLDER"ca-key.pem" $DATA_FOLDER"kubernetes-key.pem" $DATA_FOLDER"kubernetes.pem" $MASTER_EXTERNAL_IP:~/
-done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f4)"
+  ssh -o StrictHostKeyChecking=no  $MASTER_EXTERNAL_IP "sudo cp ~/ca.pem /usr/local/share/ca-certificates/kubernetes_Root_CA.crt; sudo update-ca-certificates"
+ 
+done
  

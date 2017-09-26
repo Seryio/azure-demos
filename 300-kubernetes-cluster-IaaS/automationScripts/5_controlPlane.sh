@@ -4,8 +4,8 @@ source ./config.sh
 
 #ETCD cluster connection string in etc service flag --initial-cluster
 while read MASTER_INTERNAL_IP; do	
-	ETCD_CLUSTER_CONNECTION_STRING=$ETCD_CLUSTER_CONNECTION_STRING"https://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
-	
+	#ETCD_CLUSTER_CONNECTION_STRING=$ETCD_CLUSTER_CONNECTION_STRING"https://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
+	ETCD_CLUSTER_CONNECTION_STRING=$ETCD_CLUSTER_CONNECTION_STRING"http://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
 done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f3)"
 ETCD_CLUSTER_CONNECTION_STRING=$(echo $ETCD_CLUSTER_CONNECTION_STRING | sed 's/,$//')
 
@@ -35,26 +35,15 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --audit-log-path=/var/log/audit.log \\
   --authorization-mode=Node,RBAC \\
   --bind-address=0.0.0.0 \\
-  --client-ca-file=/var/lib/kubernetes/ca.pem \\
   --enable-swagger-ui=true \\
-  --etcd-cafile=/var/lib/kubernetes/ca.pem \\
-  --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
-  --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=${ETCD_CLUSTER_CONNECTION_STRING} \\
+  --etcd-servers=http://127.0.0.1:2379 \\
   --event-ttl=1h \\
   --experimental-encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --insecure-bind-address=0.0.0.0 \\
-  --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
-  --kubelet-client-certificate=/var/lib/kubernetes/kubernetes.pem \\
-  --kubelet-client-key=/var/lib/kubernetes/kubernetes-key.pem \\
-  --kubelet-https=true \\
+  --kubelet-https=false \\
   --runtime-config=rbac.authorization.k8s.io/v1alpha1 \\
-  --service-account-key-file=/var/lib/kubernetes/ca-key.pem \\
   --service-cluster-ip-range=10.0.0.0/24 \\
   --service-node-port-range=30000-32767 \\
-  --tls-ca-file=/var/lib/kubernetes/ca.pem \\
-  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \\
-  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \\
   --v=2
 Restart=on-failure
 RestartSec=5
@@ -74,13 +63,9 @@ ExecStart=/usr/local/bin/kube-controller-manager \\
   --address=0.0.0.0 \\
   --cluster-cidr=${CIDR} \\
   --cluster-name=kubernetes \\
-  --cluster-signing-cert-file=/var/lib/kubernetes/ca.pem \\
-  --cluster-signing-key-file=/var/lib/kubernetes/ca-key.pem \\
   --leader-elect=true \\
   --master=http://${MASTER_INTERNAL_IP}:8080 \\
-  --root-ca-file=/var/lib/kubernetes/ca.pem \\
-  --service-account-private-key-file=/var/lib/kubernetes/ca-key.pem \\
-  --service-cluster-ip-range=10.32.0.0/24 \\
+  --service-cluster-ip-range=${CIDR} \\
   --v=2
 Restart=on-failure
 RestartSec=5
@@ -108,7 +93,6 @@ EOF
 
 done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE)"
 
-
 echo "-- Prepare installation script" 
 cat > $DATA_FOLDER"k8s-control-installer.sh" <<EOF
 wget -q --https-only --timestamping \
@@ -121,7 +105,9 @@ mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/local/bin/
   
 #Install API Server
 mkdir -p /var/lib/kubernetes/
-sudo mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem encryption-config.yaml /var/lib/kubernetes/
+#sudo mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem encryption-config.yaml /var/lib/kubernetes/
+sudo mv encryption-config.yaml /var/lib/kubernetes/
+
 
 #Service files have been moved already to each master
 sudo mv kube-apiserver.service kube-scheduler.service kube-controller-manager.service /etc/systemd/system/
@@ -142,6 +128,3 @@ for MASTER_NAME in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f2); do
 	ssh -o StrictHostKeyChecking=no $MASTER_EXTERNAL_IP "sudo sh k8s-control-installer.sh"
 	
 done
-
-
-
