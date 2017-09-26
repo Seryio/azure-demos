@@ -12,7 +12,7 @@ while read WORKER_NAME; do
 
   kubectl config set-credentials system:node:${WORKER_NAME} \
     --kubeconfig=$DATA_FOLDER${WORKER_NAME}.kubeconfig
-  
+
   kubectl config set-context default --cluster=kubernetes-the-hard-way \
     --user=system:node:${WORKER_NAME} \
     --kubeconfig=$DATA_FOLDER${WORKER_NAME}.kubeconfig
@@ -23,12 +23,11 @@ done <<< "$(cat $INVENTORY_FILE | grep WORKER_NODE | cut -d" " -f2)"
 
 echo "-- Generating kube-proxy config files" 
 kubectl config set-cluster kubernetes-the-hard-way \
-   --server=http://${PRIMARY_MASTER_EXTERNAL_IP}:6443 \
-   --kubeconfig=$DATA_FOLDER"kube-proxy.kubeconfig"
+  --server=http://${PRIMARY_MASTER_EXTERNAL_IP}:6443 \
+  --kubeconfig=$DATA_FOLDER"kube-proxy.kubeconfig"
 
 kubectl config set-credentials kube-proxy \
   --kubeconfig=$DATA_FOLDER"kube-proxy.kubeconfig"
-
 kubectl config set-context default \
   --cluster=kubernetes-the-hard-way \
   --user=kube-proxy \

@@ -41,6 +41,14 @@ Documentation=https://github.com/coreos
 [Service]
 ExecStart=/usr/local/bin/etcd \\
   --name ${MASTER_NAME} \\
+  --cert-file=/etc/etcd/kubernetes.pem \\
+  --key-file=/etc/etcd/kubernetes-key.pem \\
+  --peer-cert-file=/etc/etcd/kubernetes.pem \\
+  --peer-key-file=/etc/etcd/kubernetes-key.pem \\
+  --trusted-ca-file=/etc/etcd/ca.pem \\
+  --peer-trusted-ca-file=/etc/etcd/ca.pem \\
+  --peer-client-cert-auth \\
+  --client-cert-auth \\
   --initial-advertise-peer-urls http://${MASTER_INTERNAL_IP}:2380 \\
   --listen-peer-urls http://${MASTER_INTERNAL_IP}:2380 \\
   --listen-client-urls http://${MASTER_INTERNAL_IP}:2379,http://127.0.0.1:2379 \\
@@ -62,7 +70,7 @@ cat > $DATA_FOLDER"etcd-starter.sh" <<EOF
 	sudo mv ~/etcd.service /etc/systemd/system/
 	sudo systemctl daemon-reload
 	sudo systemctl enable etcd
-	sudo systemctl restart etcd
+	sudo systemctl start etcd
 EOF
 
 for MASTER_NAME in $(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f2); do
