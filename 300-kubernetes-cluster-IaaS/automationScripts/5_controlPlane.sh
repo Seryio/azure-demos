@@ -2,13 +2,6 @@
 
 source ./config.sh
 
-#ETCD cluster connection string in etc service flag --initial-cluster
-while read MASTER_INTERNAL_IP; do	
-	ETCD_CLUSTER_CONNECTION_STRING=$ETCD_CLUSTER_CONNECTION_STRING"https://$MASTER_INTERNAL_IP:$ETCD_PEER_API_PORT,"
-	
-done <<< "$(cat $INVENTORY_FILE | grep MASTER_NODE | cut -d" " -f3)"
-ETCD_CLUSTER_CONNECTION_STRING=$(echo $ETCD_CLUSTER_CONNECTION_STRING | sed 's/,$//')
-
 #CIDR
 CIDR=$(grep CIDR $INVENTORY_FILE | cut -d" " -f2)
 
@@ -36,7 +29,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --authorization-mode=Node,RBAC \\
   --bind-address=0.0.0.0 \\
   --enable-swagger-ui=true \\
-  --etcd-servers=http://127.0.0.1:2380 \\
+  --etcd-servers=http://127.0.0.1:2379 \\
   --event-ttl=1h \\
   --experimental-encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --insecure-bind-address=0.0.0.0 \\
