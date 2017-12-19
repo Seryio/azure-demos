@@ -1,1 +1,1 @@
-# Sample demo ARM templates for different scenarios described in each folder
+# Sample ARM templates for scenarios described in each folder
