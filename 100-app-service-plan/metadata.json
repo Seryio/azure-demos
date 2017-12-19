@@ -1,7 +1,0 @@
-{
-  "itemDisplayName": "Deploy an app service plan",
-  "description": "This template creates an app service plan",
-  "summary": "Deploy a app service plan linked to a GitHub repository",
-  "githubUsername": "seryio",
-  "dateUpdated": "2017-04-25"
-}
