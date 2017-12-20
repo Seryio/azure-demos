@@ -4,6 +4,7 @@
   "parameters": {
     "adminUsername": {
       "type": "string",
+      "defaultValue": "sergio",
       "metadata": {
         "description": "User name for the Virtual Machine."
       }
@@ -224,15 +225,5 @@
         }
       }
     }
-  ],
-  "outputs": {
-    "vm1_hostname": {
-      "type": "string",
-      "value": "[reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn]"
-    },
-    "vm1_sshCommand": {
-      "type": "string",
-      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('vm1_publicIPAddressName')).dnsSettings.fqdn)]"
-    }
-  }
+  ]
 }
