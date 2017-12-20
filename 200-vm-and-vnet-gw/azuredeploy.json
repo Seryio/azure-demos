@@ -25,7 +25,14 @@
       "metadata": {
         "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
       }
-    }
+    },
+    "gatewaySku":{  
+        "type":"string",
+        "defaultValue": "Basic",
+        "metadata":{  
+            "description":"The Sku of the Gateway. This must be one of Basic, Standard or HighPerformance."
+        }
+    } 
   },
   "variables": {
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'salinuxvm')]",
@@ -44,10 +51,11 @@
     "vnet1_subnetRef": "[concat(variables('vnet1_ID'),'/subnets/',variables('vnet1_subnetName'))]",
 
     "vm1_nicName": "vm1Nic",
-    "vm1_publicIPAddressName": "vm1PublicIP",
     "vm1_vmName": "ubuntuvm1",
     "vm1_dnsLabelPrefix": "[concat(variables('vm1_vmName'),'-',parameters('dnsLabelPrefix'))]",
 
+    "vnetgw_publicIPAddressName": "vnetgwPublicIP",
+    "vnetgw_name": "[concat('vnetgw-',parameters('dnsLabelPrefix'))]",
   },
   "resources": [
     {
@@ -88,18 +96,50 @@
         ]
       }
     },
-
     {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('vm1_publicIPAddressName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('vm1_dnsLabelPrefix')]"
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables('vnetgw_publicIPAddressName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "dnsSettings": {
+            "domainNameLabel": "[variables('vm1_dnsLabelPrefix')]"
+          }
         }
-      }
+    },
+    {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/virtualNetworkGateways",
+        "name": "[variables('vnetgw_name')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('vnetgw_publicIPAddressName'))]",
+          "[concat('Microsoft.Network/virtualNetworks/',   variables('vnet1_vnetName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet1_vnetName'), '/subnets/GatewaySubnet')]"
+                },
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vnetgw_publicIPAddressName'))]"
+                }
+              },
+              "name": "vnetGatewayConfig"
+            }
+          ],
+          "sku": {
+            "name": "[parameters('gatewaySku')]",
+            "tier": "[parameters('gatewaySku')]"
+          },
+          "gatewayType": "Vpn",
+          "vpnType": "RouteBased",
+          "enableBgp": "false"
+        }
     },
     {
       "apiVersion": "2017-04-01",
@@ -107,7 +147,6 @@
       "name": "[variables('vm1_nicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vm1_publicIPAddressName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet1_vnetName'))]"
       ],
       "properties": {
@@ -116,9 +155,6 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vm1_publicIPAddressName'))]"
-              },
               "subnet": {
                 "id": "[variables('vnet1_subnetRef')]"
               }
