@@ -46,7 +46,8 @@
     "vnet1_netPrefix": "10.0.0.0/16",
     "vnet1_vnetName": "vnet1",
     "vnet1_ID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet1_vnetName'))]",
-    "vnet1_gatewaySubnetPrefix": "10.0.1.0/24",   
+    "vnet1_gatewaySubnetPrefix": "10.0.1.0/24",  
+    "vnet1_gatewaySubnetRef": "[concat(variables('vnet1_ID'),'/subnets/','GatewaySubnet')]", 
     "vnet1_subnetPrefix": "10.0.2.0/24",
     "vnet1_subnetName": "vnet1_subnet1",
     "vnet1_subnetRef": "[concat(variables('vnet1_ID'),'/subnets/',variables('vnet1_subnetName'))]",
@@ -124,10 +125,10 @@
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "subnet": {
-                  "id": "[resourceId('Microsoft.Network/virtualNetworks/',  variables('vnet1_vnetName'), 'subnets', 'GatewaySubnet')]"
+                  "id": "[variables('vnet1_gatewaySubnetRef')]"
                 },
                 "publicIPAddress": {
-                  "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('vnetgw_publicIPAddressName'))]"
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnetgw_publicIPAddressName'))]"
                 }
               },
               "name": "vnetGatewayConfig"
